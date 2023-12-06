@@ -12,8 +12,7 @@ export default function App() {
         <Meta />
         <Links />
       </head>
-      <body>
-        <h1 className="text-center">Bobaaa! (TUDUM)</h1>
+      <body className="left-0 right-0 top-0 bottom-0 absolute">
         <Outlet />
         <Scripts />
         <LiveReload />
