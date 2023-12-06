@@ -11,12 +11,12 @@ function apiRequest(path, params) {
   }).then((res) => res.json());
 }
 
-export async function findBoba(location, sort_by = "distance", limit = 20) {
+export async function findBoba(location, sort_by, limit = 5) {
   return apiRequest("search", {
     location,
     term: "boba",
     radius: "10000",
-    sort_by,
+    sort_by: sort_by || "best_match",
     limit,
   });
 }
