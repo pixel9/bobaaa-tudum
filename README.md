@@ -25,6 +25,12 @@ This is the meat of the code. I opted to keep everything in a single file to mak
 
 I spent time making sure that browser navigation isn't broken and state is managed via the url. You may notice a stark lack of `useState` hooks since I pull the state from the request parameters instead. Rest assured that after from the initial page load, new data and UI refreshes all happen on the client for a snappy user experience.
 
+## Things I might have done differently
+
+With a large team, using something like Tailwind can be convenient so that styles are co-located with components. This means dead styles go away with dead code without much hassle. For a scenario like this one where it's a fairly simple project but requiring code review with fresh eyes, the utility classes peppered everywhere in the code can be a distraction. It may have actually been less distracting to create a plain stylesheet in this case.
+
+However...I know my own tendencies to go down rabbit holes when tweaking UIs so perhaps this was the best way to optimize where I spend my time.
+
 # Getting it up and running
 
 Create a `.env` file and set Yelp API token value
