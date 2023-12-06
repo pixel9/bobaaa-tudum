@@ -1,48 +1,65 @@
 import React from "react";
 import { json } from "@remix-run/node";
-import { useLoaderData } from "@remix-run/react";
+import { useLoaderData, useSearchParams } from "@remix-run/react";
 import { findBoba } from "../service";
 import { useState } from "react";
 
 const OFFICES = [
   {
-    id: 1,
+    id: "1",
     label: "Headquarters",
     address: "121 Albright Way, Los Gatos, CA 95032",
   },
-  { id: 2, label: "NY Office", address: "888 Broadway, New York, NY 10003" },
+  { id: "2", label: "NY Office", address: "888 Broadway, New York, NY 10003" },
   {
-    id: 3,
+    id: "3",
     label: "LA Office",
     address: "5808 Sunset Blvd, Los Angeles, CA 90028",
   },
 ];
 
-export async function loader() {
+export async function loader({ request }) {
+  const url = new URL(request.url);
+  const officeId = url.searchParams.get("officeId");
+
+  const offices = officeId
+    ? OFFICES.filter(({ id }) => id === officeId)
+    : OFFICES;
+
   const results = await Promise.all(
-    OFFICES.map(({ address }) => findBoba(address))
+    offices.map(({ address }) => findBoba(address))
   );
+
   return json(results);
 }
 
 export default function BobaSearch() {
+  const [searchParams] = useSearchParams();
+  const officeId = searchParams.getAll("officeId");
   const results = useLoaderData<typeof loader>();
   const matches = results.flatMap((result) => result.businesses);
+  const total = results
+    .flatMap((result) => result.total)
+    .reduce((sum, x) => sum + x, 0);
 
   return (
-    <div>
+    <div className="flex flex-col h-full">
       <nav className="bg-slate-200 py-3 px-6 flex flex-row justify-between">
-        <select>
+        <select name="officeId" value={officeId}>
           <option value="">All Locations</option>
           {OFFICES.map((office, i) => (
             <option key={office.label} value={office.id}>
-              {office.label} - {results[i].total} matches
+              {office.label}
             </option>
           ))}
         </select>
-        <div>{matches.length} search results</div>
+        <select name="sort">
+          <option value="rating">Sort by rating</option>
+          <option value="distance">Sort by distance</option>
+        </select>
+        <div>{total} search results</div>
       </nav>
-      <main className="py-3 px-6">
+      <main className="py-3 px-6 overflow-auto flex-1">
         {matches.map((match) => (
           <SearchResult match={match} />
         ))}
@@ -59,7 +76,7 @@ function SearchResult({ match }) {
       <a href={url} className="text-blue-600">
         {name}
       </a>
-      <div className="text-sm">
+      <div className="text-sm flex flex-row space-x-3">
         <Rating stars={rating} reviews={review_count} />
         <Distance distance={distance} />
       </div>
