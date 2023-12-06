@@ -3,12 +3,13 @@ import { json } from "@remix-run/node";
 import {
   Form,
   useLoaderData,
+  useNavigation,
   useSearchParams,
   useSubmit,
 } from "@remix-run/react";
 import { findBoba } from "../service";
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 10;
 const OFFICES = [
   {
     id: "1",
@@ -27,14 +28,14 @@ export async function loader({ request }) {
   const url = new URL(request.url);
   const officeId = url.searchParams.get("officeId");
   const sortBy = url.searchParams.get("sortBy");
-  const page = parseInt(url.searchParams.get("page") || "1", 10);
+  const pages = parseInt(url.searchParams.get("pages") || "1", 10);
 
   const offices = officeId
     ? OFFICES.filter(({ id }) => id === officeId)
     : OFFICES;
 
   const results = await Promise.all(
-    offices.map(({ address }) => findBoba(address, sortBy, page * PAGE_SIZE))
+    offices.map(({ address }) => findBoba(address, sortBy, pages * PAGE_SIZE))
   ).then((results) => ({
     total: results.flatMap((x) => x.total).reduce((sum, x) => sum + x, 0),
     businesses: results.flatMap((x) => x.businesses),
@@ -44,6 +45,7 @@ export async function loader({ request }) {
 }
 
 export default function BobaSearch() {
+  const navigation = useNavigation();
   const results = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
@@ -53,11 +55,12 @@ export default function BobaSearch() {
   return (
     <div className="left-0 right-0 top-0 bottom-0 absolute">
       <Form method="get" className="flex flex-col h-full">
-        <nav className="bg-slate-200 py-3 px-6 flex flex-row justify-between">
+        <nav className="bg-slate-200 py-3 px-6 flex flex-row space-x-3">
           <select
             name="officeId"
-            value={officeId}
+            defaultValue={officeId}
             onChange={(e) => submit(e.currentTarget.form)}
+            className="mt-2 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
             <option value="">All Locations</option>
 
@@ -70,8 +73,9 @@ export default function BobaSearch() {
 
           <select
             name="sortBy"
-            value={sortBy}
+            defaultValue={sortBy}
             onChange={(e) => submit(e.currentTarget.form)}
+            className="mt-2 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
             <option value="best_match">Best Match</option>
             <option value="rating">Sort by rating</option>
@@ -80,6 +84,7 @@ export default function BobaSearch() {
         </nav>
 
         <main className="py-3 px-6 overflow-auto flex-1">
+          {navigation.state === "loading" && <div>Loading...</div>}
           <SearchResults results={results} />
         </main>
       </Form>
@@ -88,16 +93,20 @@ export default function BobaSearch() {
 }
 
 function ShowMore({ count, total }) {
-  if (count >= total) return null;
+  const navigation = useNavigation();
+  const pages = Math.ceil(count / PAGE_SIZE);
 
-  const currentPage = Math.ceil(count / PAGE_SIZE);
+  if (count >= total || pages * PAGE_SIZE >= 50) return null;
+  if (navigation.state === "loading") {
+    return <div className="text-center p-3">Loading more results...</div>;
+  }
 
   return (
     <button
       type="submit"
-      name="page"
-      value={currentPage + 1}
-      className="text-center p-3 text-blue-600"
+      name="pages"
+      value={pages + 1}
+      className="w-full text-center p-3 text-blue-600"
     >
       Show More
     </button>
@@ -108,7 +117,7 @@ function SearchResults({ results }) {
   const { businesses, total } = results;
 
   return (
-    <div>
+    <div className="divide-y">
       {businesses.map((match) => (
         <SearchResult key={match.id} match={match} />
       ))}
@@ -121,7 +130,7 @@ function SearchResult({ match }) {
   const { name, url, rating, review_count, distance } = match;
 
   return (
-    <div className="rounded p-3 shadow-sm">
+    <div>
       <a href={url} className="text-blue-600">
         {name}
       </a>
