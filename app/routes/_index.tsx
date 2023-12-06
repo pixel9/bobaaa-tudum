@@ -1,11 +1,12 @@
-import React from "react";
-import { json } from "@remix-run/node";
+import React, { Suspense } from "react";
+import { json, defer } from "@remix-run/node";
 import {
   Form,
   useLoaderData,
   useNavigation,
   useSearchParams,
   useSubmit,
+  Await,
 } from "@remix-run/react";
 import { findBoba } from "../service";
 
@@ -34,19 +35,19 @@ export async function loader({ request }) {
     ? OFFICES.filter(({ id }) => id === officeId)
     : OFFICES;
 
-  const results = await Promise.all(
+  const results = Promise.all(
     offices.map(({ address }) => findBoba(address, sortBy, pages * PAGE_SIZE))
   ).then((results) => ({
     total: results.flatMap((x) => x.total).reduce((sum, x) => sum + x, 0),
     businesses: results.flatMap((x) => x.businesses),
   }));
 
-  return json(results);
+  return defer({ results });
 }
 
 export default function BobaSearch() {
   const navigation = useNavigation();
-  const results = useLoaderData<typeof loader>();
+  const { results } = useLoaderData<typeof loader>();
   const submit = useSubmit();
   const [searchParams] = useSearchParams();
   const officeId = searchParams.get("officeId") || "";
@@ -55,7 +56,7 @@ export default function BobaSearch() {
   return (
     <div className="left-0 right-0 top-0 bottom-0 absolute">
       <Form method="get" className="flex flex-col h-full">
-        <nav className="bg-slate-200 py-3 px-6 flex flex-row space-x-3">
+        <nav className="bg-slate-200 py-3 px-6 flex flex-row space-x-3 items-center">
           <select
             name="officeId"
             defaultValue={officeId}
@@ -81,11 +82,15 @@ export default function BobaSearch() {
             <option value="rating">Sort by rating</option>
             <option value="distance">Sort by distance</option>
           </select>
+          {navigation.state === "loading" && <div>Loading...</div>}
         </nav>
 
         <main className="py-3 px-6 overflow-auto flex-1">
-          {navigation.state === "loading" && <div>Loading...</div>}
-          <SearchResults results={results} />
+          <Suspense fallback={<div>Loading...</div>}>
+            <Await resolve={results}>
+              {(results) => <SearchResults results={results} />}
+            </Await>
+          </Suspense>
         </main>
       </Form>
     </div>
