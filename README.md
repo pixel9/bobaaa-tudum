@@ -1,6 +1,6 @@
 # bobaaa-tudum!
 
-This is a project to fulfill the requirements for the Netflix take home exercise.
+This is a project to fulfill the requirements for the Netflix take home exercise. [See it live!](https://bobaaa-tudum-0567d4ad7033.herokuapp.com)
 
 # Tech Stack
 
