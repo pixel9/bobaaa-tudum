@@ -1,0 +1,19 @@
+import React from "react";
+import { Links, Meta, Outlet, Scripts } from "@remix-run/react";
+import { LiveReload } from "@remix-run/react";
+
+export default function App() {
+  return (
+    <html>
+      <head>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Outlet />
+        <Scripts />
+        <LiveReload />
+      </body>
+    </html>
+  );
+}

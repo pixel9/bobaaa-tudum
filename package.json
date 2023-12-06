@@ -1,0 +1,23 @@
+{
+  "type": "module",
+  "name": "bobaaa-tudum",
+  "version": "1.0.0",
+  "description": "",
+  "scripts": {
+    "build": "npx remix build",
+    "start": "node server.mjs",
+    "dev": "remix dev -c \"node server.mjs\""
+  },
+  "dependencies": {
+    "@remix-run/express": "^2.3.1",
+    "@remix-run/node": "^2.3.1",
+    "@remix-run/react": "^2.3.1",
+    "express": "^4.18.2",
+    "isbot": "^3.7.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "^2.3.1"
+  }
+}
