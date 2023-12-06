@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { json, defer } from "@remix-run/node";
+import { defer } from "@remix-run/node";
 import {
   Form,
   useLoaderData,
@@ -55,7 +55,11 @@ export default function BobaSearch() {
 
   return (
     <div className="left-0 right-0 top-0 bottom-0 absolute">
-      <Form method="get" className="flex flex-col h-full">
+      <Form
+        method="get"
+        preventScrollReset={true}
+        className="flex flex-col h-full"
+      >
         <nav className="bg-slate-200 py-3 px-6 flex flex-row space-x-3 items-center align-middle border border-b-slate-400">
           <select
             name="officeId"

@@ -8,6 +8,7 @@ import {
   LiveReload,
   useRouteError,
   isRouteErrorResponse,
+  ScrollRestoration,
 } from "@remix-run/react";
 import styles from "./tailwind.css";
 
@@ -46,6 +47,7 @@ export default function App() {
       <body>
         <Outlet />
         <Scripts />
+        <ScrollRestoration />
         <LiveReload />
       </body>
     </html>
