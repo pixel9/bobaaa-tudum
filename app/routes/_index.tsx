@@ -56,12 +56,12 @@ export default function BobaSearch() {
   return (
     <div className="left-0 right-0 top-0 bottom-0 absolute">
       <Form method="get" className="flex flex-col h-full">
-        <nav className="bg-slate-200 py-3 px-6 flex flex-row space-x-3 items-center">
+        <nav className="bg-slate-200 py-3 px-6 flex flex-row space-x-3 items-center align-middle border border-b-slate-400">
           <select
             name="officeId"
             defaultValue={officeId}
             onChange={(e) => submit(e.currentTarget.form)}
-            className="mt-2 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            className="rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
             <option value="">All Locations</option>
 
@@ -76,16 +76,19 @@ export default function BobaSearch() {
             name="sortBy"
             defaultValue={sortBy}
             onChange={(e) => submit(e.currentTarget.form)}
-            className="mt-2 rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
+            className="rounded-md border-0 py-1.5 pl-3 pr-10 text-gray-900 ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-indigo-600 sm:text-sm sm:leading-6"
           >
             <option value="best_match">Best Match</option>
             <option value="rating">Sort by rating</option>
             <option value="distance">Sort by distance</option>
           </select>
-          {navigation.state === "loading" && <div>Loading...</div>}
+
+          {navigation.state === "loading" && (
+            <div className="text-sm">Loading...</div>
+          )}
         </nav>
 
-        <main className="py-3 px-6 overflow-auto flex-1">
+        <main className="py-3 px-6 overflow-auto flex-1 bg-slate-200">
           <Suspense fallback={<div>Loading...</div>}>
             <Await resolve={results}>
               {(results) => <SearchResults results={results} />}
@@ -103,7 +106,7 @@ function ShowMore({ count, total }) {
 
   if (count >= total || pages * PAGE_SIZE >= 50) return null;
   if (navigation.state === "loading") {
-    return <div className="text-center p-3">Loading more results...</div>;
+    return <div className="text-center p-6">Loading more results...</div>;
   }
 
   return (
@@ -111,7 +114,7 @@ function ShowMore({ count, total }) {
       type="submit"
       name="pages"
       value={pages + 1}
-      className="w-full text-center p-3 text-blue-600"
+      className="w-full text-center p-6 text-blue-600"
     >
       Show More
     </button>
@@ -122,35 +125,82 @@ function SearchResults({ results }) {
   const { businesses, total } = results;
 
   return (
-    <div className="divide-y">
-      {businesses.map((match) => (
-        <SearchResult key={match.id} match={match} />
-      ))}
+    <div className="py-3">
+      <ul
+        role="list"
+        className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3"
+      >
+        {businesses.map((match) => (
+          <SearchResult key={match.id} match={match} />
+        ))}
+      </ul>
       <ShowMore count={businesses.length} total={total} />
     </div>
   );
 }
 
 function SearchResult({ match }) {
-  const { name, url, rating, review_count, distance } = match;
+  const {
+    name,
+    is_closed,
+    image_url,
+    url,
+    rating,
+    review_count,
+    distance,
+    location,
+  } = match;
 
   return (
-    <div>
-      <a href={url} className="text-blue-600">
-        {name}
-      </a>
-      <div className="text-sm flex flex-row space-x-3">
-        <Rating stars={rating} reviews={review_count} />
-        <Distance distance={distance} />
+    <li className="col-span-1 divide-y divide-gray-200 rounded-lg bg-white shadow">
+      <div className="flex w-full items-center justify-between space-x-6 p-6">
+        <div className="flex-1 truncate">
+          <div className="flex items-center space-x-3">
+            <h3 className="truncate text-sm font-medium text-gray-900">
+              {name}
+            </h3>
+            {is_closed ? (
+              <span className="inline-flex flex-shrink-0 items-center rounded-full bg-red-50 px-1.5 py-0.5 text-xs font-medium text-red-700 ring-1 ring-inset ring-red-600/20">
+                Closed
+              </span>
+            ) : (
+              <span className="inline-flex flex-shrink-0 items-center rounded-full bg-green-50 px-1.5 py-0.5 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
+                Open
+              </span>
+            )}
+          </div>
+          <p className="mt-1 truncate text-sm text-gray-500">
+            {location.display_address.join(" ")}
+          </p>
+        </div>
+        <img
+          className="h-14 w-14 flex-shrink-0 rounded-full bg-gray-300"
+          src={image_url}
+          alt=""
+        />
       </div>
-    </div>
+      <div>
+        <div className="-mt-px flex divide-x divide-gray-200">
+          <div className="flex w-0 flex-1">
+            <div className="relative -mr-px inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-bl-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
+              <Rating stars={rating} reviews={review_count} />
+            </div>
+          </div>
+          <div className="-ml-px flex w-0 flex-1">
+            <div className="relative inline-flex w-0 flex-1 items-center justify-center gap-x-3 rounded-br-lg border border-transparent py-4 text-sm font-semibold text-gray-900">
+              <Distance distance={distance} />
+            </div>
+          </div>
+        </div>
+      </div>
+    </li>
   );
 }
 
 function Rating({ stars, reviews }) {
   return (
     <span>
-      {stars} stars ({reviews} reviews)
+      {stars} stars <span className="opacity-50 ml-4">{reviews} reviews</span>
     </span>
   );
 }

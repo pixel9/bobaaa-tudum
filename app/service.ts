@@ -10,8 +10,6 @@ async function apiRequest(path, params) {
     },
   }).then((res) => res.json());
 
-  //   console.log({ results });
-
   if (results.error) {
     console.error(results.error.code);
     throw new Error(results.error.code);
