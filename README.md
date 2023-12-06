@@ -13,13 +13,13 @@ This is a project to fulfill the requirements for the Netflix take home exercise
 
 There are 2 files of interest in the project: `service.ts` and `routes/_index.tsx`. Everything else is boilerplate. You may be wondering about `server.mjs` but it is also just boilerplate and was added for hot reloading and to clearly demonstrate that this is a simple express-based server rendered app.
 
-## `service.ts`
+## `app/service.ts`
 
 The main interface with the Yelp API implemented with a basic `fetch` call. Remix builds server/client code separately there's no concern for leaking the API key to the client side. The exposed API is "just enough" to implement paging.
 
 Given more time I would have opted to fetch just the additional data for new pages of results and merge it into the UI instead of pulling the entire result set. Some of this can be mitigated by adding caching headers to the API endpoint so it's less expensive.
 
-## `routes/_index.tsx`
+## `app/routes/_index.tsx`
 
 This is the meat of the code. I opted to keep everything in a single file to make it easier to review and make changes on a single screen.
 
