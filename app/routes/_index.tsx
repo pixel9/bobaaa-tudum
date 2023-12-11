@@ -10,6 +10,7 @@ import {
 } from "@remix-run/react";
 import { findBoba } from "../service";
 
+const CACHE_DURATION_SECONDS = 60 * 60 * 24;
 const PAGE_SIZE = 10;
 const OFFICES = [
   {
@@ -42,7 +43,14 @@ export async function loader({ request }) {
     businesses: results.flatMap((x) => x.businesses),
   }));
 
-  return defer({ results });
+  return defer(
+    { results },
+    {
+      headers: {
+        "Cache-Control": `max-age=${CACHE_DURATION_SECONDS}`,
+      },
+    }
+  );
 }
 
 export default function BobaSearch() {
