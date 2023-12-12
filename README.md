@@ -23,7 +23,7 @@ Given more time I would have opted to fetch just the additional data for new pag
 
 This is the meat of the code. I opted to keep everything in a single file to make it easier to review and make changes on a single screen.
 
-I spent time making sure that browser navigation isn't broken and state is managed via the url. You may notice a stark lack of `useState` hooks since I pull the state from the request parameters instead. Rest assured that after from the initial page load, new data and UI refreshes all happen on the client for a snappy user experience.
+I spent time making sure that browser navigation isn't broken and state is managed via the url. You may notice a stark lack of `useState` hooks since I pull the state from the request parameters instead. Rest assured that after the initial page load, new data and UI refreshes all happen on the client for a snappy user experience. Managing state via the route also makes adding caching a trivial change.
 
 ## Things I might have done differently
 
